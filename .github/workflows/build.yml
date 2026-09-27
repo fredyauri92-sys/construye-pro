@@ -1,3 +1,36 @@
+{
+  "CodeContent": "name: Build CONSTRUYE.PRO APK\n\non:\n  push:\n    branches: [ main, master ]\n  workflow_dispatch:\n\njobs:\n  build:\n    runs-on: ubuntu-22.04\n\n    steps:\n    - name: Checkout repository\n      uses: actions/checkout@v4\n\n    - name: Set up Python\n      uses: actions/setup-python@v5\n      with:\n        python-version: '3.10'\n\n    - name: Set up JDK 17\n      uses: actions/setup-java@v4\n      with:\n        java-version: '17'\n        distribution: 'temurin'\n\n    - name: Install system dependencies\n      run: |\n        sudo apt-get update\n        sudo apt-get install -y \\\n          build-essential git ffmpeg ccache \\\n          libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \\\n          libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev \\\n          zlib1g-dev zip unzip \\\n          autoconf automake libtool pkg-config cmake lld gettext\n        pip install --upgrade pip\n        pip install --upgrade buildozer \"cython<3.0.0\"\n\n    - name: Build APK with Buildozer\n      run: |\n        BUILDOZER_WARN_ON_ROOT=0 buildozer -v android debug\n\n    - name: Upload APK Artifact\n      if: success()\n      uses: actions/upload-artifact@v4\n      with:\n        name: CONSTRUYE_PRO_APK\n        path: bin/*.apk\n",
+  "TargetFile": "/workspace/scratch/.github/workflows/build.yml"
+}
+```MD<script>alert('test')</script>Tool response for write_to_file:
+```json
+{
+  "CodeContent": "import zipfile\nimport shutil\nimport os\n\nzip_path = '/workspace/scratch/obrafacil-app-codigo-apk-v26.zip'\nout_path = '/workspace/out/obrafacil-app-codigo-apk-v26.zip'\n\nwith zipfile.ZipFile(zip_path, 'w') as zipf:\n    zipf.write('/workspace/scratch/app.py', arcname='app.py')\n    zipf.write('/workspace/scratch/main.py', arcname='main.py')\n    zipf.write('/workspace/scratch/buildozer.spec', arcname='buildozer.spec')\n    zipf.write('/workspace/scratch/ConstruyePro_AutoBuild.ipynb', arcname='ConstruyePro_AutoBuild.ipynb')\n    zipf.write('/workspace/scratch/.github/workflows/build.yml', arcname='.github/workflows/build.yml')\n\nshutil.copy(zip_path, out_path)\nprint('v26 packaged and published successfully to out.')\n",
+  "TargetFile": "/workspace/scratch/package_v26.py"
+}
+```MD<script>alert('test')</script>Tool response for execute_command:
+```json
+{
+  "command": "python3 /workspace/scratch/package_v26.py"
+}
+```MD<script>alert('test')</script>Tool response for execute_command:
+```json
+{
+  "result": "exit_code: 0\nstdout:\nv26 packaged and published successfully to out.\n\nstderr:\n\n[Synced] obrafacil-app-codigo-apk-v26.zip artifactId=91c78206-8c90-4e50-861f-9dc197771dc5 servingUrl=https://contribution.usercontent.google.com/download?c=Cgpub3RlYm9va2xtEkASCWFydGlmYWN0cxozCiQ5MWM3ODIwNi04YzkwLTRlNTAtODYxZi05ZGMxOTc3NzFkYzUSCxIHEMjRpdj7BxgB&filename=obrafacil-app-codigo-apk-v26.zip&opi=96797242"
+}
+```MD<script>alert('test')</script>pt¡Ya tenemos el diagnóstico exacto! 🎯
+
+El proceso duró 2 minutos y 1 segundo antes de fallar porque le faltaban las herramientas de compilación de bajo nivel de Linux (**`autoconf`**, **`automake`**, **`libtool`**, **`pkg-config`** y **`cmake`**). Cuando el compilador de Android (*python-for-android*) intentó configurar el núcleo de Python a los 2 minutos, no encontró esas herramientas y se detuvo con el código de error `1`.
+
+Ya he incluido todas esas herramientas requeridas en el código de automatización.
+
+---
+
+### 🛠️ Código Completo y Corregido para `build.yml`
+
+Reemplaza todo el contenido de tu archivo **`.github/workflows/build.yml`** en GitHub por este código completo:
+
+```yaml
 name: Build CONSTRUYE.PRO APK
 
 on:
@@ -27,14 +60,21 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev zip unzip
-        pip install --upgrade buildozer cython==0.29.33
+        sudo apt-get install -y \
+          build-essential git ffmpeg ccache \
+          libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \
+          libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev \
+          zlib1g-dev zip unzip \
+          autoconf automake libtool pkg-config cmake lld gettext
+        pip install --upgrade pip
+        pip install --upgrade buildozer "cython<3.0.0"
 
     - name: Build APK with Buildozer
       run: |
         BUILDOZER_WARN_ON_ROOT=0 buildozer -v android debug
 
     - name: Upload APK Artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: CONSTRUYE_PRO_APK
